@@ -98,7 +98,7 @@ double get_channel_value(ADSMPLCHREQ ChannelReq[1])
 	}
 
 	AdOutputBuf = AdOutputSum / CONVERT_TIME;
-	printf("Channel1 Voltage = %f \n", AdOutputBuf);
+	//printf("Channel1 Voltage = %f \n", AdOutputBuf);
 	return AdOutputBuf;
 }
 
@@ -128,18 +128,18 @@ double get_distance(char *kind, double ConstA, double ConstB, double ConstC)
 
 
 	if (strcmp(kind, "pl") == 0) {
-		printf("%s\n", kind);
+		//printf("%s\n", kind);
 		RawVoltage = get_channel_value(AdSmplChReq1);
 	}
 	else if (strcmp(kind, "nopl") == 0) {
-		printf("%s\n", kind);
+		//printf("%s\n", kind);
 		RawVoltage = get_channel_value(AdSmplChReq2);
 	}
 	else
 	{
 		return -1;
 	}
-	printf("%.4f\n", RawVoltage);
+	//printf("%.4f\n", RawVoltage);
 
 	if (RawVoltage < 0)
 	{
@@ -157,7 +157,7 @@ double get_humidity(double ConstA, double ConstB)
 	double humidity;
 
 	RawVoltage = get_channel_value(AdSmplChReq5);
-	printf("%.4f\n", RawVoltage);
+	//printf("%.4f\n", RawVoltage);
 	if (RawVoltage < 0)
 		return -1;
 
@@ -172,7 +172,7 @@ double get_illumination(double ConstA, double ConstB, double ConstC, double Cons
 	double illumination;
 
 	RawVoltage = get_channel_value(AdSmplChReq5);
-	printf("%.4f\n", RawVoltage);
+	//printf("%.4f\n", RawVoltage);
 	if (RawVoltage < 0)
 		return -1;
 
@@ -193,7 +193,7 @@ double get_temperature(double ConstA, double ConstB)
 	double temperature;
 
 	RawVoltage = get_channel_value(AdSmplChReq3);
-	printf("%.4f\n", RawVoltage);
+	//printf("%.4f\n", RawVoltage);
 	if (RawVoltage < 0)
 		return -1;
 
@@ -216,7 +216,7 @@ int light_call(char *kind, double buf, double ConstA, double ConstB, double Cons
 
 	cal_output_buf = (ConstA * buf* buf) + (ConstB*buf) + ConstC; //1200 lux
 
-	printf("%lf\n", cal_output_buf);
+	//printf("%lf\n", cal_output_buf);
 
 	cal_output_int = (unsigned int)((double)cal_output_buf*(double)32768.0 / (double)10.0 + (double)32768.0);
 
@@ -309,7 +309,7 @@ int set_usb(char *on_off)
 }
 
 
-int tlp801a(void) {
+int get_waterflow_signal(void) {
 	DWORD d_input[1];
 	int Ret;
 	Ret = AdInputDI(AdDeviceHandle, d_input);

@@ -39,4 +39,6 @@ double get_humidity(double ConstA, double ConstB);
 double get_temperature(double ConstA, double ConstB);
 double get_illumination(double ConstA, double ConstB, double ConstC, double ConstD);
 
+int get_waterflow_signal(void);
+
 #endif

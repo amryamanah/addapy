@@ -145,6 +145,13 @@ static PyObject *addapy_get_illumination(PyObject *self, PyObject *args)
 	return Py_BuildValue("d", illumination);
 };
 
+static PyObject *addapy_get_waterflow_signal(PyObject *self)
+{
+	int ret;
+	ret = get_waterflow_signal();
+	return Py_BuildValue("i", ret);
+}
+
 static PyMethodDef AddaPyMethods[] = {
 	{ "system", addapy_system, METH_VARARGS, "Execute shell command" },
 	{ "add",  addapy_add, METH_VARARGS, "add two value" },
@@ -157,6 +164,7 @@ static PyMethodDef AddaPyMethods[] = {
 	{ "get_temperature", addapy_get_temperature, METH_VARARGS, "read temperature reading from temperature sensor" },
 	{ "get_humidity", addapy_get_humidity, METH_VARARGS, "read humidity reading from humidity sensor" },
 	{ "get_illumination", addapy_get_illumination, METH_VARARGS, "read illumination reading from illumination sensor" },
+	{ "get_waterflow_signal",  addapy_get_waterflow_signal, METH_NOARGS, "reading water flow signal" },
 	{ NULL, NULL, 0, NULL }
 };
 
