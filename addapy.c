@@ -148,7 +148,7 @@ static PyObject *addapy_get_illumination(PyObject *self, PyObject *args)
 static PyObject *addapy_get_waterflow_signal(PyObject *self)
 {
 	int ret;
-	ret = get_waterflow_signal();
+	ret = flow_check();
 	return Py_BuildValue("i", ret);
 }
 

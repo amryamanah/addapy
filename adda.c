@@ -216,7 +216,7 @@ int light_call(char *kind, double buf, double ConstA, double ConstB, double Cons
 
 	cal_output_buf = (ConstA * buf* buf) + (ConstB*buf) + ConstC; //1200 lux
 
-	//printf("%lf\n", cal_output_buf);
+																  //printf("%lf\n", cal_output_buf);
 
 	cal_output_int = (unsigned int)((double)cal_output_buf*(double)32768.0 / (double)10.0 + (double)32768.0);
 
@@ -317,4 +317,35 @@ int get_waterflow_signal(void) {
 		return 1;
 	else
 		return 0;
+}
+
+int flow_check(void) {
+	clock_t t1, t2;//For processing time count
+	int	sensor;//The current state of the sensor
+	int	sensorprev = get_waterflow_signal();//State of one loop front of the sensor
+	int short_sensorcount = 0, bufsensorcount = 0;//0.3 seconds pulse count of
+	int it = 0;
+	t1 = clock();
+	for (it = 0; it<300;) {//Check whether large flow rate is detected than the threshold value between 300 milliseconds
+		t2 = clock();
+		if ((t2 - t1)>it) {//The difference between t2 and t1 ( in milliseconds) is I to judge whether more than the number of loops instead of Sleep function
+			sensor = get_waterflow_signal();//1 return in light blocking enter the signal of the optical sensor (IN17 / OUT17), 0 return in light transmission
+											//printf("%d,	", sensor);
+
+											//	printf("%d",sensor);
+			if (sensor == 1 && sensorprev == 0) {//Sensor signal rising
+				short_sensorcount++;
+				sensorprev = 1;
+			}
+			if (sensor == 0 && sensorprev == 1) {//Fall sensor signal Standing
+				short_sensorcount++;
+				sensorprev = 0;
+			}
+			//				Sleep(1);//Once per millisecond
+
+			//printf("sensorprev = %d , sensor = %d, short_sensorcount = %d \n", sensorprev, sensor, short_sensorcount);
+			it++;
+		}
+	}
+	return short_sensorcount;
 }

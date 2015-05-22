@@ -5,6 +5,7 @@
 #include <tchar.h>
 #include <stdio.h>
 #include <assert.h>
+#include <time.h>
 
 #ifdef UNICODE
 typedef LPCWSTR LPCTSTR;
@@ -39,6 +40,6 @@ double get_humidity(double ConstA, double ConstB);
 double get_temperature(double ConstA, double ConstB);
 double get_illumination(double ConstA, double ConstB, double ConstC, double ConstD);
 
-int get_waterflow_signal(void);
+int flow_check(void);
 
 #endif
