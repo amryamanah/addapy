@@ -309,7 +309,7 @@ int set_usb(char *on_off)
 }
 
 
-int get_waterflow_signal(void) {
+int get_flowmeter_signal(void) {
 	DWORD d_input[1];
 	int Ret;
 	Ret = AdInputDI(AdDeviceHandle, d_input);
@@ -322,14 +322,14 @@ int get_waterflow_signal(void) {
 int flow_check(void) {
 	clock_t t1, t2;//For processing time count
 	int	sensor;//The current state of the sensor
-	int	sensorprev = get_waterflow_signal();//State of one loop front of the sensor
+	int	sensorprev = get_flowmeter_signal();//State of one loop front of the sensor
 	int short_sensorcount = 0, bufsensorcount = 0;//0.3 seconds pulse count of
 	int it = 0;
 	t1 = clock();
 	for (it = 0; it<300;) {//Check whether large flow rate is detected than the threshold value between 300 milliseconds
 		t2 = clock();
 		if ((t2 - t1)>it) {//The difference between t2 and t1 ( in milliseconds) is I to judge whether more than the number of loops instead of Sleep function
-			sensor = get_waterflow_signal();//1 return in light blocking enter the signal of the optical sensor (IN17 / OUT17), 0 return in light transmission
+			sensor = get_flowmeter_signal();//1 return in light blocking enter the signal of the optical sensor (IN17 / OUT17), 0 return in light transmission
 											//printf("%d,	", sensor);
 
 											//	printf("%d",sensor);

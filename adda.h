@@ -41,5 +41,6 @@ double get_temperature(double ConstA, double ConstB);
 double get_illumination(double ConstA, double ConstB, double ConstC, double ConstD);
 
 int flow_check(void);
+int get_flowmeter_signal(void);
 
 #endif

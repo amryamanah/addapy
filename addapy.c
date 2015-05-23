@@ -145,7 +145,14 @@ static PyObject *addapy_get_illumination(PyObject *self, PyObject *args)
 	return Py_BuildValue("d", illumination);
 };
 
-static PyObject *addapy_get_waterflow_signal(PyObject *self)
+static PyObject *addapy_get_flowmeter_signal(PyObject *self)
+{
+	int ret;
+	ret = get_flowmeter_signal();
+	return Py_BuildValue("i", ret);
+}
+
+static PyObject *addapy_flow_check(PyObject *self)
 {
 	int ret;
 	ret = flow_check();
@@ -164,7 +171,8 @@ static PyMethodDef AddaPyMethods[] = {
 	{ "get_temperature", addapy_get_temperature, METH_VARARGS, "read temperature reading from temperature sensor" },
 	{ "get_humidity", addapy_get_humidity, METH_VARARGS, "read humidity reading from humidity sensor" },
 	{ "get_illumination", addapy_get_illumination, METH_VARARGS, "read illumination reading from illumination sensor" },
-	{ "get_waterflow_signal",  addapy_get_waterflow_signal, METH_NOARGS, "reading water flow signal" },
+	{ "get_flowmeter_signal",  addapy_get_flowmeter_signal, METH_NOARGS, "reading water flow signal" },
+	{ "flow_check",  addapy_flow_check, METH_NOARGS, "300 ms flow signal reader" },
 	{ NULL, NULL, 0, NULL }
 };
 
