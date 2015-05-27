@@ -5,6 +5,9 @@ ADSMPLREQ		AdSmplConfig;
 
 HANDLE AdDeviceHandle;
 HANDLE DaDeviceHandle;
+HANDLE flowMeterHandle;
+
+DWORD flowMeterThreadId;
 
 unsigned short	wSmplData[2];
 ADBOARDSPEC 	BoardSpec;
@@ -18,6 +21,35 @@ ADSMPLCHREQ		AdSmplChReq4[1];
 DASMPLCHREQ	DaSmplChReq1[1];
 DASMPLCHREQ	DaSmplChReq2[1];
 
+int TotalFlowCount = 0;
+int FlowMeterFlag = 1;
+
+DWORD WINAPI FlowMeterThread()
+{	
+	int	sensor;//The current state of the sensor
+	int	sensorprev = get_flowmeter_signal();//State of one loop front of the sensor
+	int short_sensorcount = 0, bufsensorcount = 0;//0.3 seconds pulse count of
+
+	for (;;)
+	{
+		if (FlowMeterFlag == 0)
+			break;
+
+		sensor = get_flowmeter_signal();//1 return in light blocking enter the signal of the optical sensor (IN17 / OUT17), 0 return in light transmission
+										
+		if (sensor == 1 && sensorprev == 0) {//Sensor signal rising
+			TotalFlowCount++;
+			sensorprev = 1;
+		}
+		if (sensor == 0 && sensorprev == 1) {//Fall sensor signal Standing
+			TotalFlowCount++;
+			sensorprev = 0;
+		}
+
+		TotalFlowCount++;
+	}
+	return 0;
+}
 
 void SetHandler()
 {
@@ -309,7 +341,8 @@ int set_usb(char *on_off)
 }
 
 
-int get_flowmeter_signal(void) {
+int get_flowmeter_signal(void)
+{
 	DWORD d_input[1];
 	int Ret;
 	Ret = AdInputDI(AdDeviceHandle, d_input);
@@ -317,6 +350,40 @@ int get_flowmeter_signal(void) {
 		return 1;
 	else
 		return 0;
+}
+
+int flow_check_start(void) 
+{
+	TotalFlowCount = 0;
+	FlowMeterFlag = 1;
+	flowMeterHandle = CreateThread(
+		NULL, // default security attributes
+		0, // use default stack size
+		FlowMeterThread, // thread function
+		NULL, // argument to thread function
+		0, // use default creation flags
+		&flowMeterThreadId); // returns the thread identifier
+	if (flowMeterHandle == NULL)
+	{
+		printf("CreateThread() failed, error: %d.\n", GetLastError());
+		return -1;
+	}
+		
+	printf("The thread ID: %d.\n", flowMeterThreadId);
+	return 0;
+}
+
+int flow_check_stop(void)
+{
+	int result = 0;
+	FlowMeterFlag = 0;
+	if (CloseHandle(flowMeterHandle) != 0)
+	{
+		printf("Total count = %d", TotalFlowCount);
+		result = TotalFlowCount;
+		printf("Handle to thread closed successfully.\n");
+	}
+	return result;
 }
 
 int flow_check(void) {

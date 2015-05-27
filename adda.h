@@ -42,5 +42,7 @@ double get_illumination(double ConstA, double ConstB, double ConstC, double Cons
 
 int flow_check(void);
 int get_flowmeter_signal(void);
+int flow_check_start(void);
+int flow_check_stop(void);
 
 #endif

@@ -159,6 +159,20 @@ static PyObject *addapy_flow_check(PyObject *self)
 	return Py_BuildValue("i", ret);
 }
 
+static PyObject *addapy_flow_check_start(PyObject *self)
+{	
+	int ret;
+	ret = flow_check_start();
+	return Py_BuildValue("i", ret);
+}
+
+static PyObject *addapy_flow_check_stop(PyObject *self)
+{
+	int ret;
+	ret = flow_check_stop();
+	return Py_BuildValue("i", ret);
+}
+
 static PyMethodDef AddaPyMethods[] = {
 	{ "system", addapy_system, METH_VARARGS, "Execute shell command" },
 	{ "add",  addapy_add, METH_VARARGS, "add two value" },
@@ -173,6 +187,8 @@ static PyMethodDef AddaPyMethods[] = {
 	{ "get_illumination", addapy_get_illumination, METH_VARARGS, "read illumination reading from illumination sensor" },
 	{ "get_flowmeter_signal",  addapy_get_flowmeter_signal, METH_NOARGS, "reading water flow signal" },
 	{ "flow_check",  addapy_flow_check, METH_NOARGS, "300 ms flow signal reader" },
+	{ "flow_check_start",  addapy_flow_check_start, METH_NOARGS, "300 ms flow signal reader" },
+	{ "flow_check_stop",  addapy_flow_check_stop, METH_NOARGS, "300 ms flow signal reader" },
 	{ NULL, NULL, 0, NULL }
 };
 
