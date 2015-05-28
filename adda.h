@@ -31,24 +31,22 @@ typedef LPCSTR LPCTSTR;
 int open_adda(void);
 int close_adda(void);
 
-int light_call(char *kind, double buf, double ConstA, double ConstB, double ConstC);
+int light_call(char *kind, double distance);
 int device_cleaning(void);
 int set_usb(char *on_off);
 
-double get_distance(char *kind, double ConstA, double ConstB, double ConstC);
+double get_distance(char *kind);
 double get_humidity(double ConstA, double ConstB);
 double get_temperature(double ConstA, double ConstB);
 double get_illumination(double ConstA, double ConstB, double ConstC, double ConstD);
 
-int flow_check(void);
 int get_flowmeter_signal(void);
-int flow_check_start(void);
-int flow_check_stop(void);
-int adjust_led_start();
-int adjust_led_stop();
-void set_calibration_value(double plDistConstA, double plDistConstB, double plDistConstC,
+
+void set_calibration_value(
+	double plDistConstA, double plDistConstB, double plDistConstC,
 	double noplDistConstA, double noplDistConstB, double noplDistConstC,
 	double plLedConstA, double plLedConstB, double plLedConstC,
-	double noplLedConstA, double noplLedConstB, double noplLedConstC);
+	double noplLedConstA, double noplLedConstB, double noplLedConstC
+);
 
 #endif

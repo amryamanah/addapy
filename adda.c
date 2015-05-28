@@ -8,10 +8,6 @@ HANDLE DaDeviceHandle;
 HANDLE flowMeterHandle;
 HANDLE adjustLedHandle;
 
-DWORD flowMeterThreadId;
-DWORD adjustLedThreadId;
-
-
 unsigned short	wSmplData[2];
 ADBOARDSPEC 	BoardSpec;
 ADSMPLREQ		AdSmplConfig;
@@ -29,58 +25,7 @@ double noplDistConstA, noplDistConstB, noplDistConstC;
 double plLedConstA, plLedConstB, plLedConstC;
 double noplLedConstA, noplLedConstB, noplLedConstC;
 
-int TotalFlowCount = 0;
-int FlowMeterFlag = 1;
-int AdjustLedFlag = 1;
 
-DWORD WINAPI flow_meter_loop()
-{	
-	int	sensor;//The current state of the sensor
-	int	sensorprev = get_flowmeter_signal();//State of one loop front of the sensor
-	int short_sensorcount = 0, bufsensorcount = 0;//0.3 seconds pulse count of
-
-	for (;;)
-	{
-		if (FlowMeterFlag == 0)
-			break;
-
-		sensor = get_flowmeter_signal();//1 return in light blocking enter the signal of the optical sensor (IN17 / OUT17), 0 return in light transmission
-										
-		if (sensor == 1 && sensorprev == 0) {//Sensor signal rising
-			TotalFlowCount++;
-			sensorprev = 1;
-		}
-		if (sensor == 0 && sensorprev == 1) {//Fall sensor signal Standing
-			TotalFlowCount++;
-			sensorprev = 0;
-		}
-
-		TotalFlowCount++;
-	}
-	return 0;
-}
-
-DWORD WINAPI adjust_led_loop()
-{	
-	double pl_distance = 0;
-	double nopl_distance = 0;
-	for (;;)
-	{
-		if (AdjustLedFlag == 0)
-		{
-			light_call("reset", 0, plLedConstA, plLedConstB, plLedConstC);
-			break;
-		}
-		else
-		{
-			pl_distance = get_distance("pl", plDistConstA, plDistConstB, plDistConstC);
-			nopl_distance = get_distance("nopl", noplDistConstA, noplDistConstB, noplDistConstC);
-			light_call("pl", pl_distance, plLedConstA, plLedConstB, plLedConstC);
-			light_call("nopl", nopl_distance, noplLedConstA, noplLedConstB, noplLedConstC);
-		}
-	}
-	return 0;
-}
 
 void SetHandler()
 {
@@ -184,7 +129,7 @@ int set_da_out(unsigned short voltage, DASMPLCHREQ ChannelReq[1])
 	}
 }
 
-double get_distance(char *kind, double ConstA, double ConstB, double ConstC)
+double get_distance(char *kind)
 {
 	double RawVoltage;
 	double ConvertedDistance;
@@ -193,10 +138,12 @@ double get_distance(char *kind, double ConstA, double ConstB, double ConstC)
 	if (strcmp(kind, "pl") == 0) {
 		//printf("%s\n", kind);
 		RawVoltage = get_channel_value(AdSmplChReq1);
+		ConvertedDistance = (plDistConstA * RawVoltage * RawVoltage) + (plDistConstB * RawVoltage) + plDistConstC;
 	}
 	else if (strcmp(kind, "nopl") == 0) {
 		//printf("%s\n", kind);
 		RawVoltage = get_channel_value(AdSmplChReq2);
+		ConvertedDistance = (noplDistConstA * RawVoltage * RawVoltage) + (noplDistConstB * RawVoltage) + noplDistConstC;
 	}
 	else
 	{
@@ -209,7 +156,6 @@ double get_distance(char *kind, double ConstA, double ConstB, double ConstC)
 		return -1;
 	}
 
-	ConvertedDistance = (ConstA * RawVoltage * RawVoltage) + (ConstB * RawVoltage) + ConstC;
 
 	return ConvertedDistance;
 }
@@ -265,7 +211,7 @@ double get_temperature(double ConstA, double ConstB)
 	return temperature;
 }
 
-int light_call(char *kind, double buf, double ConstA, double ConstB, double ConstC)
+int light_call(char *kind, double distance)
 {
 	double cal_output_buf;
 	unsigned int cal_output_int;
@@ -275,11 +221,15 @@ int light_call(char *kind, double buf, double ConstA, double ConstB, double Cons
 	{
 		return (set_da_out(0, DaSmplChReq2) || set_da_out(0, DaSmplChReq1));
 	}
+	else if(strcmp(kind, "pl") == 0)
+	{
+		cal_output_buf = (plLedConstA * distance* distance) + (plLedConstB*distance) + plLedConstC; //1200 lux
+	}
+	else if(strcmp(kind, "nopl") == 0)
+	{
+		cal_output_buf = (noplLedConstA * distance* distance) + (noplLedConstB*distance) + noplLedConstC; //1200 lux
+	}
 
-
-	cal_output_buf = (ConstA * buf* buf) + (ConstB*buf) + ConstC; //1200 lux
-
-																  //printf("%lf\n", cal_output_buf);
 
 	cal_output_int = (unsigned int)((double)cal_output_buf*(double)32768.0 / (double)10.0 + (double)32768.0);
 
@@ -383,49 +333,9 @@ int get_flowmeter_signal(void)
 		return 0;
 }
 
-int flow_check_start(void) 
-{
-	TotalFlowCount = 0;
-	FlowMeterFlag = 1;
-	flowMeterHandle = CreateThread(
-		NULL, // default security attributes
-		0, // use default stack size
-		flow_meter_loop, // thread function
-		NULL, // argument to thread function
-		0, // use default creation flags
-		&flowMeterThreadId); // returns the thread identifier
-	if (flowMeterHandle == NULL)
-	{
-		printf("CreateThread() failed, error: %d.\n", GetLastError());
-		return -1;
-	}
-		
-	printf("The thread ID: %d.\n", flowMeterThreadId);
-	return 0;
-}
 
-int adjust_led_start()
-{
-	AdjustLedFlag = 1;
-	adjustLedHandle = CreateThread(
-		NULL, // default security attributes
-		0, // use default stack size
-		adjust_led_loop, // thread function
-		NULL, // argument to thread function
-		0, // use default creation flags
-		&adjustLedThreadId); // returns the thread identifier
-	
-	if (adjustLedHandle == NULL)
-	{
-		printf("CreateThread() failed, error: %d.\n", GetLastError());
-		return -1;
-	}
 
-	SetThreadPriority(adjustLedHandle, THREAD_PRIORITY_HIGHEST);
 
-	printf("The thread ID: %d.\n", adjustLedThreadId);
-	return 0;
-}
 
 void set_calibration_value(double ConfigPlDistConstA, double ConfigPlDistConstB, double ConfigPlDistConstC,
 	double ConfigNoPlDistConstA, double ConfigNoPlDistConstB, double ConfigNoPlDistConstC,
@@ -444,60 +354,4 @@ void set_calibration_value(double ConfigPlDistConstA, double ConfigPlDistConstB,
 	noplLedConstA = ConfigNoPlLedConstA;
 	noplLedConstB = ConfigNoPlLedConstB;
 	noplLedConstC = ConfigNoPlLedConstC;
-}
-
-int flow_check_stop(void)
-{
-	int result = 0;
-	FlowMeterFlag = 0;
-	if (CloseHandle(flowMeterHandle) != 0)
-	{
-		printf("Total count = %d", TotalFlowCount);
-		result = TotalFlowCount;
-		printf("Handle to thread closed successfully.\n");
-	}
-	return result;
-}
-
-int adjust_led_stop(void)
-{
-	int ret = 0;
-	AdjustLedFlag = 0;
-	if (CloseHandle(adjustLedHandle) != 0)
-	{
-		ret = 1;
-		printf("Handle to thread closed successfully.\n");
-	}
-	return ret;
-}
-
-int flow_check(void) {
-	clock_t t1, t2;//For processing time count
-	int	sensor;//The current state of the sensor
-	int	sensorprev = get_flowmeter_signal();//State of one loop front of the sensor
-	int short_sensorcount = 0, bufsensorcount = 0;//0.3 seconds pulse count of
-	int it = 0;
-	t1 = clock();
-	for (it = 0; it<300;) {//Check whether large flow rate is detected than the threshold value between 300 milliseconds
-		t2 = clock();
-		if ((t2 - t1)>it) {//The difference between t2 and t1 ( in milliseconds) is I to judge whether more than the number of loops instead of Sleep function
-			sensor = get_flowmeter_signal();//1 return in light blocking enter the signal of the optical sensor (IN17 / OUT17), 0 return in light transmission
-											//printf("%d,	", sensor);
-
-											//	printf("%d",sensor);
-			if (sensor == 1 && sensorprev == 0) {//Sensor signal rising
-				short_sensorcount++;
-				sensorprev = 1;
-			}
-			if (sensor == 0 && sensorprev == 1) {//Fall sensor signal Standing
-				short_sensorcount++;
-				sensorprev = 0;
-			}
-			//				Sleep(1);//Once per millisecond
-
-			//printf("sensorprev = %d , sensor = %d, short_sensorcount = %d \n", sensorprev, sensor, short_sensorcount);
-			it++;
-		}
-	}
-	return short_sensorcount;
 }
