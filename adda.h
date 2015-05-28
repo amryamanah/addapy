@@ -44,5 +44,11 @@ int flow_check(void);
 int get_flowmeter_signal(void);
 int flow_check_start(void);
 int flow_check_stop(void);
+int adjust_led_start();
+int adjust_led_stop();
+void set_calibration_value(double plDistConstA, double plDistConstB, double plDistConstC,
+	double noplDistConstA, double noplDistConstB, double noplDistConstC,
+	double plLedConstA, double plLedConstB, double plLedConstC,
+	double noplLedConstA, double noplLedConstB, double noplLedConstC);
 
 #endif

@@ -6,8 +6,11 @@ ADSMPLREQ		AdSmplConfig;
 HANDLE AdDeviceHandle;
 HANDLE DaDeviceHandle;
 HANDLE flowMeterHandle;
+HANDLE adjustLedHandle;
 
 DWORD flowMeterThreadId;
+DWORD adjustLedThreadId;
+
 
 unsigned short	wSmplData[2];
 ADBOARDSPEC 	BoardSpec;
@@ -21,10 +24,16 @@ ADSMPLCHREQ		AdSmplChReq4[1];
 DASMPLCHREQ	DaSmplChReq1[1];
 DASMPLCHREQ	DaSmplChReq2[1];
 
+double plDistConstA, plDistConstB, plDistConstC;
+double noplDistConstA, noplDistConstB, noplDistConstC;
+double plLedConstA, plLedConstB, plLedConstC;
+double noplLedConstA, noplLedConstB, noplLedConstC;
+
 int TotalFlowCount = 0;
 int FlowMeterFlag = 1;
+int AdjustLedFlag = 1;
 
-DWORD WINAPI FlowMeterThread()
+DWORD WINAPI flow_meter_loop()
 {	
 	int	sensor;//The current state of the sensor
 	int	sensorprev = get_flowmeter_signal();//State of one loop front of the sensor
@@ -47,6 +56,26 @@ DWORD WINAPI FlowMeterThread()
 		}
 
 		TotalFlowCount++;
+	}
+	return 0;
+}
+
+DWORD WINAPI adjust_led_loop()
+{	
+	double pl_distance = 0;
+	double nopl_distance = 0;
+	for (;;)
+	{
+		if (AdjustLedFlag == 0)
+		{
+			light_call("reset", 0, plLedConstA, plLedConstB, plLedConstC);
+			break;
+		}
+			
+		pl_distance = get_distance("pl", plDistConstA, plDistConstB, plDistConstC);
+		nopl_distance = get_distance("nopl", noplDistConstA, noplDistConstB, noplDistConstC);
+		light_call("pl", pl_distance, plLedConstA, plLedConstB, plLedConstC);
+		light_call("nopl", nopl_distance, noplLedConstA, noplLedConstB, noplLedConstC);
 	}
 	return 0;
 }
@@ -359,7 +388,7 @@ int flow_check_start(void)
 	flowMeterHandle = CreateThread(
 		NULL, // default security attributes
 		0, // use default stack size
-		FlowMeterThread, // thread function
+		flow_meter_loop, // thread function
 		NULL, // argument to thread function
 		0, // use default creation flags
 		&flowMeterThreadId); // returns the thread identifier
@@ -373,6 +402,45 @@ int flow_check_start(void)
 	return 0;
 }
 
+int adjust_led_start()
+{
+	AdjustLedFlag = 1;
+	adjustLedHandle = CreateThread(
+		NULL, // default security attributes
+		0, // use default stack size
+		adjust_led_loop, // thread function
+		NULL, // argument to thread function
+		0, // use default creation flags
+		&adjustLedThreadId); // returns the thread identifier
+	if (adjustLedHandle == NULL)
+	{
+		printf("CreateThread() failed, error: %d.\n", GetLastError());
+		return -1;
+	}
+
+	printf("The thread ID: %d.\n", adjustLedThreadId);
+	return 0;
+}
+
+void set_calibration_value(double plDistConstA, double plDistConstB, double plDistConstC,
+	double noplDistConstA, double noplDistConstB, double noplDistConstC,
+	double plLedConstA, double plLedConstB, double plLedConstC,
+	double noplLedConstA, double noplLedConstB, double noplLedConstC)
+{
+	plDistConstA = plDistConstA;
+	plDistConstB = plDistConstB;
+	plDistConstC = plDistConstC;
+	noplDistConstA = noplDistConstA;
+	noplDistConstB = noplDistConstB;
+	noplDistConstC = noplDistConstC;
+	plLedConstA = plLedConstA;
+	plLedConstB = plLedConstB;
+	plLedConstC = plLedConstC;
+	noplLedConstA = noplLedConstA;
+	noplLedConstB = noplLedConstB;
+	noplLedConstC = noplLedConstC;
+}
+
 int flow_check_stop(void)
 {
 	int result = 0;
@@ -384,6 +452,18 @@ int flow_check_stop(void)
 		printf("Handle to thread closed successfully.\n");
 	}
 	return result;
+}
+
+int adjust_led_stop(void)
+{
+	int ret = 0;
+	AdjustLedFlag = 0;
+	if (CloseHandle(adjustLedHandle) != 0)
+	{
+		ret = 1;
+		printf("Handle to thread closed successfully.\n");
+	}
+	return ret;
 }
 
 int flow_check(void) {

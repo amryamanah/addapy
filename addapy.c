@@ -173,6 +173,46 @@ static PyObject *addapy_flow_check_stop(PyObject *self)
 	return Py_BuildValue("i", ret);
 }
 
+static PyObject *addapy_adjust_led_start(PyObject *self)
+{
+	int ret;
+	ret = adjust_led_start();
+	return Py_BuildValue("i", ret);
+}
+
+static PyObject *addapy_adjust_led_stop(PyObject *self)
+{
+	int ret;
+	ret = adjust_led_stop();
+	return Py_BuildValue("i", ret);
+}
+
+static PyObject *addapy_set_calibration_value(PyObject *self, PyObject *args)
+{
+	int i = 0;
+	char *kind;
+	double plDistConstA, plDistConstB, plDistConstC;
+	double noplDistConstA, noplDistConstB, noplDistConstC;
+	double plLedConstA, plLedConstB, plLedConstC;
+	double noplLedConstA, noplLedConstB, noplLedConstC;
+	double result;
+
+	if (!PyArg_ParseTuple(args, "dddddddddddd", 
+		&plDistConstA, &plDistConstB, &plDistConstC, 
+		&noplDistConstA, &noplDistConstB, &noplDistConstC,
+		&plLedConstA, &plLedConstB, &plLedConstC,
+		&noplLedConstA, &noplLedConstB, &noplLedConstC )) 
+	{
+		return NULL;
+	}
+
+	set_calibration_value(plDistConstA, plDistConstB, plDistConstC,
+								   noplDistConstA, noplDistConstB, noplDistConstC,
+								   plLedConstA, plLedConstB, plLedConstC,
+								   noplLedConstA, noplLedConstB, noplLedConstC);
+	Py_RETURN_NONE;
+};
+
 static PyMethodDef AddaPyMethods[] = {
 	{ "system", addapy_system, METH_VARARGS, "Execute shell command" },
 	{ "add",  addapy_add, METH_VARARGS, "add two value" },
@@ -189,6 +229,9 @@ static PyMethodDef AddaPyMethods[] = {
 	{ "flow_check",  addapy_flow_check, METH_NOARGS, "300 ms flow signal reader" },
 	{ "flow_check_start",  addapy_flow_check_start, METH_NOARGS, "300 ms flow signal reader" },
 	{ "flow_check_stop",  addapy_flow_check_stop, METH_NOARGS, "300 ms flow signal reader" },
+	{ "adjust_led_start",  addapy_adjust_led_start, METH_NOARGS, "300 ms flow signal reader" },
+	{ "adjust_led_stop",  addapy_adjust_led_stop, METH_NOARGS, "300 ms flow signal reader" },
+	{ "set_calibration_value",  addapy_set_calibration_value, METH_VARARGS, "set led output" },
 	{ NULL, NULL, 0, NULL }
 };
 
