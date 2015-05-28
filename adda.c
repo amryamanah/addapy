@@ -20,12 +20,6 @@ ADSMPLCHREQ		AdSmplChReq4[1];
 DASMPLCHREQ	DaSmplChReq1[1];
 DASMPLCHREQ	DaSmplChReq2[1];
 
-double plDistConstA, plDistConstB, plDistConstC;
-double noplDistConstA, noplDistConstB, noplDistConstC;
-double plLedConstA, plLedConstB, plLedConstC;
-double noplLedConstA, noplLedConstB, noplLedConstC;
-
-
 
 void SetHandler()
 {
@@ -129,7 +123,7 @@ int set_da_out(unsigned short voltage, DASMPLCHREQ ChannelReq[1])
 	}
 }
 
-double get_distance(char *kind)
+double get_distance(char *kind, double ConstA, double ConstB, double ConstC)
 {
 	double RawVoltage;
 	double ConvertedDistance;
@@ -138,12 +132,10 @@ double get_distance(char *kind)
 	if (strcmp(kind, "pl") == 0) {
 		//printf("%s\n", kind);
 		RawVoltage = get_channel_value(AdSmplChReq1);
-		ConvertedDistance = (plDistConstA * RawVoltage * RawVoltage) + (plDistConstB * RawVoltage) + plDistConstC;
 	}
 	else if (strcmp(kind, "nopl") == 0) {
 		//printf("%s\n", kind);
 		RawVoltage = get_channel_value(AdSmplChReq2);
-		ConvertedDistance = (noplDistConstA * RawVoltage * RawVoltage) + (noplDistConstB * RawVoltage) + noplDistConstC;
 	}
 	else
 	{
@@ -156,7 +148,7 @@ double get_distance(char *kind)
 		return -1;
 	}
 
-
+	ConvertedDistance = (ConstA * RawVoltage * RawVoltage) + (ConstB * RawVoltage) + ConstC;
 	return ConvertedDistance;
 }
 
@@ -211,7 +203,7 @@ double get_temperature(double ConstA, double ConstB)
 	return temperature;
 }
 
-int light_call(char *kind, double distance)
+int light_call(char *kind, double distance, double ConstA, double ConstB, double ConstC)
 {
 	double cal_output_buf;
 	unsigned int cal_output_int;
@@ -221,14 +213,8 @@ int light_call(char *kind, double distance)
 	{
 		return (set_da_out(0, DaSmplChReq2) || set_da_out(0, DaSmplChReq1));
 	}
-	else if(strcmp(kind, "pl") == 0)
-	{
-		cal_output_buf = (plLedConstA * distance* distance) + (plLedConstB*distance) + plLedConstC; //1200 lux
-	}
-	else if(strcmp(kind, "nopl") == 0)
-	{
-		cal_output_buf = (noplLedConstA * distance* distance) + (noplLedConstB*distance) + noplLedConstC; //1200 lux
-	}
+
+	cal_output_buf = (ConstA * distance* distance) + (ConstB*distance) + ConstC; //1200 lux
 
 
 	cal_output_int = (unsigned int)((double)cal_output_buf*(double)32768.0 / (double)10.0 + (double)32768.0);
@@ -331,27 +317,4 @@ int get_flowmeter_signal(void)
 		return 1;
 	else
 		return 0;
-}
-
-
-
-
-
-void set_calibration_value(double ConfigPlDistConstA, double ConfigPlDistConstB, double ConfigPlDistConstC,
-	double ConfigNoPlDistConstA, double ConfigNoPlDistConstB, double ConfigNoPlDistConstC,
-	double ConfigPlLedConstA, double ConfigPlLedConstB, double ConfigPlLedConstC,
-	double ConfigNoPlLedConstA, double ConfigNoPlLedConstB, double ConfigNoPlLedConstC)
-{
-	plDistConstA = ConfigPlDistConstA;
-	plDistConstB = ConfigPlDistConstB;
-	plDistConstC = ConfigPlDistConstC;
-	noplDistConstA = ConfigNoPlDistConstA;
-	noplDistConstB = ConfigNoPlDistConstB;
-	noplDistConstC = ConfigNoPlDistConstC;
-	plLedConstA = ConfigPlLedConstA;
-	plLedConstB = ConfigPlLedConstB;
-	plLedConstC = ConfigPlLedConstC;
-	noplLedConstA = ConfigNoPlLedConstA;
-	noplLedConstB = ConfigNoPlLedConstB;
-	noplLedConstC = ConfigNoPlLedConstC;
 }

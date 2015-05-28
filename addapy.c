@@ -55,13 +55,16 @@ static PyObject *addapy_get_distance(PyObject *self, PyObject *args)
 {
 	int i = 0;
 	char *kind;
+	double ConstA;
+	double ConstB;
+	double ConstC;
 	double result;
 
-	if (!PyArg_ParseTuple(args, "s", &kind)) {
+	if (!PyArg_ParseTuple(args, "sddd", &kind, &ConstA, &ConstB, &ConstC)) {
 		return NULL;
 	}
 
-	result = get_distance(kind);
+	result = get_distance(kind, ConstA, ConstB, ConstC);
 	return Py_BuildValue("d", result);
 };
 
@@ -69,14 +72,17 @@ static PyObject *addapy_set_led(PyObject *self, PyObject *args)
 {
 	char *kind;
 	double distance;
+	double ConstA;
+	double ConstB;
+	double ConstC;
 	int ret;
 
-	if (!PyArg_ParseTuple(args, "sd", &kind, &distance))
+	if (!PyArg_ParseTuple(args, "sdddd", &kind, &distance, &ConstA, &ConstB, &ConstC))
 	{
 		return NULL;
 	}
 
-	ret = light_call(kind, distance);
+	ret = light_call(kind, distance, ConstA, ConstB, ConstC);
 
 	if (ret == 0)
 		Py_RETURN_TRUE;
@@ -146,32 +152,6 @@ static PyObject *addapy_get_flowmeter_signal(PyObject *self)
 	return Py_BuildValue("i", ret);
 }
 
-static PyObject *addapy_set_calibration_value(PyObject *self, PyObject *args)
-{
-	int i = 0;
-	char *kind;
-	double plDistConstA, plDistConstB, plDistConstC;
-	double noplDistConstA, noplDistConstB, noplDistConstC;
-	double plLedConstA, plLedConstB, plLedConstC;
-	double noplLedConstA, noplLedConstB, noplLedConstC;
-	double result;
-
-	if (!PyArg_ParseTuple(args, "dddddddddddd", 
-		&plDistConstA, &plDistConstB, &plDistConstC, 
-		&noplDistConstA, &noplDistConstB, &noplDistConstC,
-		&plLedConstA, &plLedConstB, &plLedConstC,
-		&noplLedConstA, &noplLedConstB, &noplLedConstC )) 
-	{
-		return NULL;
-	}
-
-	set_calibration_value(plDistConstA, plDistConstB, plDistConstC,
-								   noplDistConstA, noplDistConstB, noplDistConstC,
-								   plLedConstA, plLedConstB, plLedConstC,
-								   noplLedConstA, noplLedConstB, noplLedConstC);
-	Py_RETURN_NONE;
-};
-
 static PyMethodDef AddaPyMethods[] = {
 	{ "system", addapy_system, METH_VARARGS, "Execute shell command" },
 	{ "add",  addapy_add, METH_VARARGS, "add two value" },
@@ -185,7 +165,6 @@ static PyMethodDef AddaPyMethods[] = {
 	{ "get_humidity", addapy_get_humidity, METH_VARARGS, "read humidity reading from humidity sensor" },
 	{ "get_illumination", addapy_get_illumination, METH_VARARGS, "read illumination reading from illumination sensor" },
 	{ "get_flowmeter_signal",  addapy_get_flowmeter_signal, METH_NOARGS, "reading water flow signal" },
-	{ "set_calibration_value",  addapy_set_calibration_value, METH_VARARGS, "set led output" },
 	{ NULL, NULL, 0, NULL }
 };
 
