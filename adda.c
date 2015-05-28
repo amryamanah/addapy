@@ -71,11 +71,13 @@ DWORD WINAPI adjust_led_loop()
 			light_call("reset", 0, plLedConstA, plLedConstB, plLedConstC);
 			break;
 		}
-			
-		pl_distance = get_distance("pl", plDistConstA, plDistConstB, plDistConstC);
-		nopl_distance = get_distance("nopl", noplDistConstA, noplDistConstB, noplDistConstC);
-		light_call("pl", pl_distance, plLedConstA, plLedConstB, plLedConstC);
-		light_call("nopl", nopl_distance, noplLedConstA, noplLedConstB, noplLedConstC);
+		else
+		{
+			pl_distance = get_distance("pl", plDistConstA, plDistConstB, plDistConstC);
+			nopl_distance = get_distance("nopl", noplDistConstA, noplDistConstB, noplDistConstC);
+			light_call("pl", pl_distance, plLedConstA, plLedConstB, plLedConstC);
+			light_call("nopl", nopl_distance, noplLedConstA, noplLedConstB, noplLedConstC);
+		}
 	}
 	return 0;
 }
@@ -422,23 +424,23 @@ int adjust_led_start()
 	return 0;
 }
 
-void set_calibration_value(double plDistConstA, double plDistConstB, double plDistConstC,
-	double noplDistConstA, double noplDistConstB, double noplDistConstC,
-	double plLedConstA, double plLedConstB, double plLedConstC,
-	double noplLedConstA, double noplLedConstB, double noplLedConstC)
+void set_calibration_value(double ConfigPlDistConstA, double ConfigPlDistConstB, double ConfigPlDistConstC,
+	double ConfigNoPlDistConstA, double ConfigNoPlDistConstB, double ConfigNoPlDistConstC,
+	double ConfigPlLedConstA, double ConfigPlLedConstB, double ConfigPlLedConstC,
+	double ConfigNoPlLedConstA, double ConfigNoPlLedConstB, double ConfigNoPlLedConstC)
 {
-	plDistConstA = plDistConstA;
-	plDistConstB = plDistConstB;
-	plDistConstC = plDistConstC;
-	noplDistConstA = noplDistConstA;
-	noplDistConstB = noplDistConstB;
-	noplDistConstC = noplDistConstC;
-	plLedConstA = plLedConstA;
-	plLedConstB = plLedConstB;
-	plLedConstC = plLedConstC;
-	noplLedConstA = noplLedConstA;
-	noplLedConstB = noplLedConstB;
-	noplLedConstC = noplLedConstC;
+	plDistConstA = ConfigPlDistConstA;
+	plDistConstB = ConfigPlDistConstB;
+	plDistConstC = ConfigPlDistConstC;
+	noplDistConstA = ConfigNoPlDistConstA;
+	noplDistConstB = ConfigNoPlDistConstB;
+	noplDistConstC = ConfigNoPlDistConstC;
+	plLedConstA = ConfigPlLedConstA;
+	plLedConstB = ConfigPlLedConstB;
+	plLedConstC = ConfigPlLedConstC;
+	noplLedConstA = ConfigNoPlLedConstA;
+	noplLedConstB = ConfigNoPlLedConstB;
+	noplLedConstC = ConfigNoPlLedConstC;
 }
 
 int flow_check_stop(void)
