@@ -414,11 +414,14 @@ int adjust_led_start()
 		NULL, // argument to thread function
 		0, // use default creation flags
 		&adjustLedThreadId); // returns the thread identifier
+	
 	if (adjustLedHandle == NULL)
 	{
 		printf("CreateThread() failed, error: %d.\n", GetLastError());
 		return -1;
 	}
+
+	SetThreadPriority(adjustLedHandle, THREAD_PRIORITY_HIGHEST);
 
 	printf("The thread ID: %d.\n", adjustLedThreadId);
 	return 0;
