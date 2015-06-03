@@ -152,7 +152,7 @@ double get_distance(char *kind, double ConstA, double ConstB, double ConstC)
 	return ConvertedDistance;
 }
 
-double get_humidity(double ConstA, double ConstB)
+double get_humidity(double ConstA, double ConstB, double ConstC)
 {
 	double RawVoltage;
 	double humidity;
@@ -162,7 +162,7 @@ double get_humidity(double ConstA, double ConstB)
 	if (RawVoltage < 0)
 		return -1;
 
-	humidity = ConstA * RawVoltage + ConstB;
+	humidity = ConstA * RawVoltage * RawVoltage + ConstB * RawVoltage + ConstC;
 
 	return humidity;
 }
@@ -188,7 +188,7 @@ double get_illumination(double ConstA, double ConstB, double ConstC, double Cons
 	return illumination;
 }
 
-double get_temperature(double ConstA, double ConstB)
+double get_temperature(double ConstA, double ConstB, double ConstC)
 {
 	double RawVoltage;
 	double temperature;
@@ -198,7 +198,7 @@ double get_temperature(double ConstA, double ConstB)
 	if (RawVoltage < 0)
 		return -1;
 
-	temperature = ConstA * RawVoltage + ConstB;
+	temperature = ConstA * RawVoltage * RawVoltage + ConstB * RawVoltage + ConstC;
 
 	return temperature;
 }

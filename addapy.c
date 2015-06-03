@@ -116,22 +116,22 @@ static PyObject *addapy_set_usb(PyObject *self, PyObject *args)
 
 static PyObject *addapy_get_temperature(PyObject *self, PyObject *args)
 {
-	double ConstA, ConstB;
+	double ConstA, ConstB, ConstC;
 	double temperature;
-	if (!PyArg_ParseTuple(args, "dd", &ConstA, &ConstB))
+	if (!PyArg_ParseTuple(args, "ddd", &ConstA, &ConstB, &ConstC))
 		return NULL;
-	temperature = get_temperature(ConstA, ConstB);
+	temperature = get_temperature(ConstA, ConstB, ConstC);
 
 	return Py_BuildValue("d", temperature);
 };
 
 static PyObject *addapy_get_humidity(PyObject *self, PyObject *args)
 {
-	double ConstA, ConstB;
+	double ConstA, ConstB, ConstC;
 	double humidity;
-	if (!PyArg_ParseTuple(args, "dd", &ConstA, &ConstB))
+	if (!PyArg_ParseTuple(args, "ddd", &ConstA, &ConstB, &ConstC))
 		return NULL;
-	humidity = get_humidity(ConstA, ConstB);
+	humidity = get_humidity(ConstA, ConstB, ConstC);
 	return Py_BuildValue("d", humidity);
 };
 
