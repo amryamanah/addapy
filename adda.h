@@ -37,6 +37,7 @@ int set_usb(char *on_off);
 
 double get_distance(char *kind, double ConstA, double ConstB, double ConstC);
 double get_humidity(double ConstA, double ConstB, double ConstC);
+double get_humidity_with_temp(double temp, double ConstA, double ConstB, double ConstC);
 double get_temperature(double ConstA, double ConstB, double ConstC);
 double get_illumination(double ConstA, double ConstB, double ConstC, double ConstD);
 

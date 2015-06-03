@@ -167,6 +167,21 @@ double get_humidity(double ConstA, double ConstB, double ConstC)
 	return humidity;
 }
 
+double get_humidity_with_temp(double temp, double ConstA, double ConstB, double ConstC)
+{
+	double RawVoltage;
+	double humidity;
+
+	RawVoltage = get_channel_value(AdSmplChReq5);
+	//printf("%.4f\n", RawVoltage);
+	if (RawVoltage < 0)
+		return -1;
+
+	humidity = (RawVoltage + ConstA) / (ConstB + ConstC * temp);
+
+	return humidity;
+}
+
 double get_illumination(double ConstA, double ConstB, double ConstC, double ConstD)
 {
 	double RawVoltage;

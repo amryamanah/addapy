@@ -135,6 +135,16 @@ static PyObject *addapy_get_humidity(PyObject *self, PyObject *args)
 	return Py_BuildValue("d", humidity);
 };
 
+static PyObject *addapy_get_humidity_with_temp(PyObject *self, PyObject *args)
+{
+	double ConstA, ConstB, ConstC;
+	double humidity, temp;
+	if (!PyArg_ParseTuple(args, "dddd", &temp, &ConstA, &ConstB, &ConstC))
+		return NULL;
+	humidity = get_humidity_with_temp(temp, ConstA, ConstB, ConstC);
+	return Py_BuildValue("d", humidity);
+};
+
 static PyObject *addapy_get_illumination(PyObject *self, PyObject *args)
 {
 	double ConstA, ConstB, ConstC, ConstD;
@@ -163,6 +173,7 @@ static PyMethodDef AddaPyMethods[] = {
 	{ "set_usb",  addapy_set_usb, METH_VARARGS, "set usb on/off" },
 	{ "get_temperature", addapy_get_temperature, METH_VARARGS, "read temperature reading from temperature sensor" },
 	{ "get_humidity", addapy_get_humidity, METH_VARARGS, "read humidity reading from humidity sensor" },
+	{ "get_humidity_with_temp", addapy_get_humidity_with_temp, METH_VARARGS, "read humidity reading from humidity sensor with temperature reference" },
 	{ "get_illumination", addapy_get_illumination, METH_VARARGS, "read illumination reading from illumination sensor" },
 	{ "get_flowmeter_signal",  addapy_get_flowmeter_signal, METH_NOARGS, "reading water flow signal" },
 	{ NULL, NULL, 0, NULL }
