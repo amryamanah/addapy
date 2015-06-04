@@ -247,11 +247,11 @@ int light_call(char *kind, double distance, double ConstA, double ConstB, double
 
 	if (strcmp(kind, "pl") == 0)
 	{
-		return set_da_out(cal_output, DaSmplChReq2);
+		return set_da_out(cal_output, DaSmplChReq1);
 	}
 	else if (strcmp(kind, "nopl") == 0)
 	{
-		return set_da_out(cal_output, DaSmplChReq1);
+		return set_da_out(cal_output, DaSmplChReq2);
 	}
 	else
 	{
