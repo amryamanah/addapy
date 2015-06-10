@@ -5,30 +5,6 @@
 
 static PyObject *ClsbindingError;
 
-static PyObject* addapy_system(PyObject *self, PyObject *args)
-{
-	const char *command;
-	int sts;
-
-	if (!PyArg_ParseTuple(args, "s", &command))
-		return NULL;
-
-	sts = system(command);
-
-	return PyLong_FromLong(sts);
-}
-
-static PyObject *addapy_add(PyObject *self, PyObject *args)
-{
-	double a;
-	double b;
-
-	if (!PyArg_ParseTuple(args, "dd", &a, &b)) {
-		return NULL;
-	}
-	return Py_BuildValue("d", a + b);
-}
-
 static PyObject *addapy_Initialize_adda(PyObject *self)
 {
 	int ret;
@@ -163,8 +139,6 @@ static PyObject *addapy_get_flowmeter_signal(PyObject *self)
 }
 
 static PyMethodDef AddaPyMethods[] = {
-	{ "system", addapy_system, METH_VARARGS, "Execute shell command" },
-	{ "add",  addapy_add, METH_VARARGS, "add two value" },
 	{ "Initialize_adda",  addapy_Initialize_adda, METH_NOARGS, "initialize adda board" },
 	{ "Destroy_adda",  addapy_Destroy_adda, METH_NOARGS, "destroy adda connection" },
 	{ "device_cleaning",  addapy_device_cleaning, METH_NOARGS, "cleaning CLS device" },
