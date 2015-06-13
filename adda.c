@@ -279,7 +279,7 @@ int device_cleaning()
 	if (Ret != DA_ERROR_SUCCESS)
 		return -1;
 
-	Sleep(3000);
+	Sleep(10000);
 	Ret = AdOutputDO(AdDeviceHandle, CLS_DO_NEUTRAL);
 	if (Ret != DA_ERROR_SUCCESS)
 		return -1;
